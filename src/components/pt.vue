@@ -1,5 +1,5 @@
 <template>
-    <div id="JigsawPuzzle" style="width:100%;height:500px;background-color: #9ac2b9;">
+    <div id="JigsawPuzzle" style="width:100%;background-color: #9ac2b9;">
         <el-upload
             class="avatar-uploader"
             action="https://jsonplaceholder.typicode.com/posts/"
@@ -22,8 +22,9 @@
             :min="2"
             :max="10"
             label="描述文字"
-        ></el-input-number>
+        ></el-input-number><br/>
         <el-button type="primary" @click="clickCropImage()">生成</el-button>
+        <el-button type="primary" @click="Disruption()">打乱</el-button>
         <div>
             <template v-for="(itemY, y) in locationArr">
                 <template v-for="(item, x) in itemY">
@@ -62,10 +63,33 @@ export default {
     },
     computed: {},
     watch: {},
+    created() {},
+    mounted() {this.Disruption();},
     methods: {
+        Disruption(){
+            // let i = 1;
+            // let arr = Array.from({ length: this.numberX * this.numberY }, (x) => i++);
+            // arr.sort((a, b)=>this.randomsort(a, b));
+
+            let arr = this.$lodash.flatten(this.locationArr);
+            arr.sort((a, b)=>this.randomsort(a, b));
+            // console.log('%c专属log：','color:#468cd4;font-size:12px;',arr);
+            this.locationArr.forEach((el,i)=>{
+                el.forEach((el2,i2)=>{
+                    el2=arr[this.numberX*i+i2]
+                    this.$set(this.locationArr[i],i2,arr[this.numberX*i+i2])
+                })
+            });
+            this.$forceUpdate();
+            // console.log('%c专属log：','color:#468cd4;font-size:12px;',this.locationArr);
+        },
+        randomsort(a, b) {
+            return Math.random()>.5 ? -1 : 1;
+            //用Math.random()函数生成0~1之间的随机数与0.5比较，返回-1或1
+        },
         //点击移动
         move(item, y, x) {
-            console.log("%c当前点击块：","color:#468cd4;font-size:12px;",item,"y:" + y,"x:" + x);
+            // console.log("%c当前点击块：","color:#468cd4;font-size:12px;","y:"+y,"x:"+x,item);
             if (item.index !== this.numberX * this.numberY) {
                 let x9, y9;
                 this.locationArr.forEach((el, index) => {
@@ -76,12 +100,12 @@ export default {
                         }
                     });
                 });
-                console.log("%c空格位置：","color:#468cd4;font-size:12px;","y9:" + y9,"x9:" + x9);
+                // console.log("%c空格位置：","color:#468cd4;font-size:12px;","y:" + y9,"x:" + x9);
                 if ( (x == x9 && Math.abs(y - y9) === 1) || (y == y9 && Math.abs(x - x9) === 1) ) {
                     [this.locationArr[y][x], this.locationArr[y9][x9]] = [this.locationArr[y9][x9], this.locationArr[y][x]];
                     this.$forceUpdate();
                 }
-                console.log("%clocationArr：","color:#468cd4;font-size:12px;",this.locationArr);
+                // console.log("%clocationArr：","color:#468cd4;font-size:12px;",this.locationArr);
             }
         },
         //分割图片
@@ -130,18 +154,12 @@ export default {
             ctx.fillStyle = "white";
             ctx.fill();
             ctx.putImageData(targetctxImageData, 0, 0); // imageData, dx, dy // 创建img 块
-            // let img = document.createElement("img");
-            // img.src = c.toDataURL("image/jpeg", 0.92);
             return c.toDataURL("image/jpeg", 0.92);
-            // document.getElementById("aas").appendChild(img);
-            // document.body.appendChild(img);
         },
         createImg() {
             let canvas = document.getElementById("imageC");
             let ctx = canvas.getContext("2d");
             let img = document.getElementById("imgpt");
-            // let img = document.createElement("img");
-            // img.src = "/static/img/wallhaven-686616.9cdc7c8.jpg";
             ctx.drawImage(img, 0, 0, 200, 200);
         },
         handleAvatarSuccess(res, file) {
@@ -164,8 +182,6 @@ export default {
             // return isJPG && isLt2M;
         }
     },
-    created() {},
-    mounted() {}
 };
 </script>
 
