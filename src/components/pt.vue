@@ -1,5 +1,5 @@
 <template>
-    <div id="JigsawPuzzle" style="width:100%;background-color: #9ac2b9;">
+    <div id="JigsawPuzzle" style="width:100%;height:500px;background-color: #9ac2b9;">
         <el-upload
             class="avatar-uploader"
             action="https://jsonplaceholder.typicode.com/posts/"
@@ -26,18 +26,21 @@
         <el-button type="primary" @click="clickCropImage()">生成</el-button>
         <el-button type="primary" @click="Disruption()">打乱</el-button>
         <div>
+            <transition-group name="flip-list" tag="div">
             <template v-for="(itemY, y) in locationArr">
                 <template v-for="(item, x) in itemY">
                     <img 
                         @click="move(item, y, x)" 
-                        :key="`${y}_${x}`" 
+                        :key="uniqueId+item.index" 
                         :style="item.index == numberX * numberY ? 'opacity: 0;' : 'cursor: pointer;'"
                         style="vertical-align: bottom;margin:2px;"
                         :src="item.src"
                     />
-                    <br v-if="x == numberX - 1" :key="`br_${y}_${x}`" />
+                    <!-- <br v-if="x == numberX - 1" :key="`br_${item.index}`"/> -->
                 </template>
+                <br :key="`${uniqueId}_br_${y}`"/>
             </template>
+            </transition-group>
         </div>
         <div style="position:fixed;bottom: -2000px;">
             <!-- <img id="imgpt1" style="width: 100px;height: 100px;z-index:-100;" src="./wallhaven-686616.jpg"/> -->
@@ -59,18 +62,17 @@ export default {
             numberY: 4,
             locationArr: [],
             imageUrl: '/img/wallhaven-686616.9cdc7c84.jpg',
+            uniqueId:0,
+            imgShow:false,
         };
     },
     computed: {},
     watch: {},
     created() {},
-    mounted() {this.Disruption();},
+    mounted() {},
     methods: {
+        //打乱拼图
         Disruption(){
-            // let i = 1;
-            // let arr = Array.from({ length: this.numberX * this.numberY }, (x) => i++);
-            // arr.sort((a, b)=>this.randomsort(a, b));
-
             let arr = this.$lodash.flatten(this.locationArr);
             arr.sort((a, b)=>this.randomsort(a, b));
             // console.log('%c专属log：','color:#468cd4;font-size:12px;',arr);
@@ -109,11 +111,14 @@ export default {
             }
         },
         //分割图片
-        clickCropImage() {
+        async clickCropImage() {
+            this.uniqueId = this.$lodash.uniqueId('id_');
             this.createImg();
             this.locationArr = [];
             this.numberX = this.valueX;
             this.numberY = this.valueY;
+            this.imgShow = false;
+            await this.$nextTick();
             let canvas = document.getElementById("imageC"); //  获取画布大小，判断画布大小
             let canvasH = canvas.clientHeight;
             let canvasW = canvas.clientWidth; //  将图片等分
@@ -140,6 +145,8 @@ export default {
                 }
                 this.locationArr.push(list);
             }
+            await this.$nextTick();
+            this.imgShow = true;
             // canvasComimgCreated = false;
             // divComimgCreated = false;
         },
@@ -186,6 +193,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.flip-list-move {
+  transition: transform 0.3s;
+}
+.flip-list-enter, .flip-list-leave-to {
+  opacity: 0;
+}
 #JigsawPuzzle {
     .avatar-uploader .el-upload {
         border: 1px dashed #d9d9d9;
