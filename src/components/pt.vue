@@ -1,8 +1,9 @@
 <template>
-    <div id="JigsawPuzzle" style="width:100%;height:500px;background-color: #9ac2b9;">
+    <div id="JigsawPuzzle" style="width:100%;height:520px;background-color: #9ac2b9;">
         <el-upload
             class="avatar-uploader"
             action="https://jsonplaceholder.typicode.com/posts/"
+            style="padding-top: 10px;"
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload">
@@ -10,36 +11,38 @@
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
         行：<el-input-number
-            v-model="valueY"
-            controls-position="right"
-            :min="2"
-            :max="10"
-            label="描述文字"
-        ></el-input-number>
+                v-model="valueY"
+                controls-position="right"
+                size="mini"
+                :min="2"
+                :max="10"
+                label="描述文字"
+            ></el-input-number><br/>
         列：<el-input-number
-            v-model="valueX"
-            controls-position="right"
-            :min="2"
-            :max="10"
-            label="描述文字"
-        ></el-input-number><br/>
+                v-model="valueX"
+                controls-position="right"
+                size="mini"
+                :min="2"
+                :max="10"
+                label="描述文字"
+            ></el-input-number><br/>
         <el-button type="primary" @click="clickCropImage()">生成</el-button>
         <el-button type="primary" @click="Disruption()">打乱</el-button>
         <div>
-            <transition-group name="flip-list" tag="div">
-            <template v-for="(itemY, y) in locationArr">
-                <template v-for="(item, x) in itemY">
-                    <img 
-                        @click="move(item, y, x)" 
-                        :key="uniqueId+item.index" 
-                        :style="item.index == numberX * numberY ? 'opacity: 0;' : 'cursor: pointer;'"
-                        style="vertical-align: bottom;margin:2px;"
-                        :src="item.src"
-                    />
-                    <!-- <br v-if="x == numberX - 1" :key="`br_${item.index}`"/> -->
+            <transition-group name="flip-list" style="display: inline-block;margin: 5px;" tag="div">
+                <template v-for="(itemY, y) in locationArr">
+                    <template v-for="(item, x) in itemY">
+                        <img 
+                            @click="move(item, y, x)" 
+                            :key="uniqueId+item.index" 
+                            :style="item.index == numberX * numberY ? 'opacity: 0;' : 'cursor: pointer;'"
+                            style="vertical-align: bottom;margin:1px;"
+                            :src="item.src"
+                        />
+                        <!-- <br v-if="x == numberX - 1" :key="`br_${item.index}`"/> -->
+                    </template>
+                    <br :key="`${uniqueId}_br_${y}`"/>
                 </template>
-                <br :key="`${uniqueId}_br_${y}`"/>
-            </template>
             </transition-group>
         </div>
         <div style="position:fixed;bottom: -2000px;">
